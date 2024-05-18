@@ -9,6 +9,7 @@ import { RouterLink, RouterView } from 'vue-router'
         <div class="toolbar">
           <RouterLink to="/">Home</RouterLink>
           <RouterLink to="/add">Add a source</RouterLink>
+          <RouterLink to="/recommended">Recommended</RouterLink>
         </div>
       </nav>
     </div>
@@ -25,5 +26,6 @@ import { RouterLink, RouterView } from 'vue-router'
   gap: 5px;
   font-size: 1.3em;
   font-family: sans-serif;
+  
 }
 </style>

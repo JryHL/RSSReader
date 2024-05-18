@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-for="s in stories">
-            <h2> <a :href="s.url">{{ s.title }}</a> </h2>
+            <h2> <a :href="s.url" target="_blank">{{ s.title }}</a> </h2>
             <div> {{ s.time }} </div>
         </div>
     </div>

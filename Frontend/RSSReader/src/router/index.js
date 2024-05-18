@@ -18,6 +18,12 @@ const router = createRouter({
       name: 'stories',
       component: () => import('../views/Stories.vue')
     }
+    ,
+    {
+      path: '/recommended',
+      name: 'recommended',
+      component: () => import('../views/Recommended.vue')
+    }
   ]
 })
 
