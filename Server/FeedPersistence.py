@@ -57,6 +57,15 @@ class Persistence:
         self.stories.append(story)
         story.feedSource.stories.append(story)
     
+    def deleteStoriesFromSource(self, feed: FeedSource):
+        cur = self.con.cursor()
+        sql = f"DELETE FROM stories WHERE feed_id={int(feed.id)};"
+        cur.execute(sql)
+        self.con.commit()
+        for story in feed.stories:
+            self.stories.remove(story)
+        feed.stories = []
+
     def close(self):
         self.con.close()
 
