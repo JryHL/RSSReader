@@ -19,7 +19,6 @@ def deleteSource(id) -> bool:
     return db.deleteSource(db.feedSources[int(id)])
 
 def getSources():
-    randomFetch()
     sourcesList = db.getSources()
     return sourcesList
 
@@ -50,15 +49,6 @@ def returnCategories():
         fetchStoriesFromSource(id)
        
     return Recommendations.categorizeStories(db.stories)
-
-# randomly fetches from sources for 0.5 seconds to reduce overhead of fetching all sources at once
-def randomFetch():
-    start = time.time()
-    counter = 0
-    while time.time() - start < 1 and counter < 3:
-        fetchStoriesFromSource(random.choice(list(db.feedSources.keys())))
-        counter += 1
-    print(f"Performed random fetch of {counter} sources")
 
 
 def forceRecommendationReset():

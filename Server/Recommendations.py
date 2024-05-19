@@ -1,3 +1,4 @@
+from unicodedata import category
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -12,7 +13,7 @@ import copy
 from MyConstants import *
 
 NUM_CATEGORIES = 30
-MAX_STORIES_PER_CATEGORY = 3
+MAX_STORIES_PER_CATEGORY = 5
 
 
 categories = []
@@ -76,19 +77,34 @@ def categorizeStories(feedStories: List[Story]):
         keywd = k[0]
         cat = Category(keywd)
         for s in stories:
+            if len(cat.stories) >= MAX_STORIES_PER_CATEGORY:
+                break
             if keywd in s.simplifiedTitle:
                 # restore full word
                 if cat.expandedKeyword == "":
                     cat.expandedKeyword = expandStemToFullWord(keywd, s)
                 cat.stories.append(s)
                 stories.remove(s) #remove duplicates
+            
         #duplicate avoidance may cause empty categories
         if len(cat.stories) > 0:
             cat.stories.sort(key=lambda x: x.ranking, reverse=True)
-            cat.stories = cat.stories[:MAX_STORIES_PER_CATEGORY]
+            # set rank of category to mean of story rank, plus consider number of occurrences and add some randomness
+            
+            cat.categoryRank = rateCategoryValue(cat, k[1])
             categories.append(cat)
     last_update = time.time()
+    categories.sort(key=lambda x: x.categoryRank, reverse=True)
     return categories
+
+def rateCategoryValue(cat, freq: int) -> int:
+    ranksum = 0
+    for s in cat.stories:
+        ranksum += s.ranking
+    ranksum = ranksum / len(cat.stories)
+    ranksum += freq * 10
+    ranksum *= (random.randrange(75, 125) * 0.01)
+    return ranksum
 
 # TODO: Make better story ranking method
 def rateStoryValue(s: Story):
@@ -102,7 +118,7 @@ def rateStoryValue(s: Story):
     try:
         unixtime = time.mktime(s.time)
         age = time.time() - unixtime
-        rating -= 0.01 * age
+        rating -= 0.001 * age
     except:
         pass
     rating += random.randint(-7, 7)
@@ -113,4 +129,5 @@ class Category:
         self.keyword = keyword
         self.expandedKeyword = "" #keyword as full word rather than stem
         self.stories = []
+        self.categoryRank = 0
 
