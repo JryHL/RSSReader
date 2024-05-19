@@ -45,6 +45,6 @@ import { RouterLink, RouterView } from 'vue-router'
 }
 
 .contentsView {
-  margin-top: 25px;
+  margin-top: 30px;
 }
 </style>

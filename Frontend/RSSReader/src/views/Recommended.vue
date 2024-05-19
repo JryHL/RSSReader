@@ -4,10 +4,7 @@
         <button class="text-button" @click="forceResetCategories"><i class="bi bi-arrow-clockwise"></i> REFRESH</button>
     </div>
     <div>
-
-
         <div class="roboto-condensed notificationScreen" v-if="loading"><i class="bi bi-hourglass-split"></i>Loading your recommendations; please wait...</div>
-
         <div v-if="!loading" class="storiesWrapper">
             <div v-for="c in categories">
                 <div class="storiesList">
@@ -92,7 +89,7 @@ export default {
     color: rgba(0, 0, 0, 0.5);
 }
 .storiesWrapper {
-    margin-top: 10px;
+    margin-top: -5px;
 }
 
 .storyTitle {
