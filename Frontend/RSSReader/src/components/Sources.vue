@@ -13,9 +13,10 @@
                     {{ s.url }}
                 </div>
             </div>
-            <div>
-            <i class="bi bi-trash viewbutton" @click="onDeleteSource(s.id)"></i>
-            <i class="bi bi-chevron-double-right viewbutton" @click="goToStories(s.id, s.name)"></i>
+            <div class="operation-btns">
+            <i class="bi bi bi-newspaper viewbutton" @click="goToStories(s.id, s.name)"></i>
+            <i class="bi bi-trash viewbutton" @click="onDeleteSource(s.id, s.name)"></i>
+            
             </div>
         </div>
     </div>
@@ -45,9 +46,11 @@
             goToStories(id, name) {
                 this.$router.push({name: 'stories', params: {id: id, source_name: name}})
             },
-            async onDeleteSource(id) {
-                await deleteSource(id);
-                this.updateSources();
+            async onDeleteSource(id, name) {
+                if (confirm(`Are you sure you would like to delete ${name}?`)) {
+                    await deleteSource(id);
+                    this.updateSources();
+                }
             }
         }
     }
@@ -92,4 +95,9 @@
         font-size: 14px;
         color: rgba(0,0,0,0.7);
     }
+    .operation-btns {
+        display: flex;
+        flex-direction: row;
+        gap: 5px;
+    }   
 </style>
