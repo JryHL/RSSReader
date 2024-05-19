@@ -16,6 +16,7 @@ def createSource(name, url):
     return feed
 
 def deleteSource(id) -> bool:
+    forceRecommendationReset()
     return db.deleteSource(db.feedSources[int(id)])
 
 def getSources():
@@ -34,7 +35,6 @@ def fetchStoriesFromSource(source_id):
                 soup = BeautifulSoup(str(getattr(getattr(e, "summary_detail", ""), "value", "")),features="html.parser")
                 summary = soup.get_text()
                 storyObj = Story(-1, getattr(e, "title", ""), summary, getattr(e, "link", ""), getattr(e, "published_parsed", ""), source)
-                storyObj.ranking = Recommendations.rateStoryValue(storyObj)
                 db.addStory(storyObj)
             source.lastUpdate = time.time()
             Recommendations.last_update = 0 #force recommendations re-recommend

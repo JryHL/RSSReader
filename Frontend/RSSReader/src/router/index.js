@@ -4,9 +4,9 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
-      name: 'home',
-      component: () => import('../views/Home.vue')
+      path: '/sourcelist',
+      name: 'sourcelist',
+      component: () => import('../views/Sourcelist.vue')
     },
     {
       path: '/add',
@@ -20,7 +20,7 @@ const router = createRouter({
     }
     ,
     {
-      path: '/recommended',
+      path: '/',
       name: 'recommended',
       component: () => import('../views/Recommended.vue')
     }

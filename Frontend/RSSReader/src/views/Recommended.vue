@@ -1,9 +1,12 @@
 <template>
-    <h2>Recommended stories</h2>
+    <div class="topBar">
+        <h1 class="roboto">Your Briefing</h1>
+        <button class="text-button" @click="forceResetCategories"><i class="bi bi-arrow-clockwise"></i> REFRESH</button>
+    </div>
     <div>
-        <input type="button" value="Refresh Recommendations" @click="forceResetCategories" />
 
-        <div class="loadingScreen" v-if="loading"><i class="bi bi-hourglass-split"></i>Loading your recommendations; please wait...</div>
+
+        <div class="roboto-condensed notificationScreen" v-if="loading"><i class="bi bi-hourglass-split"></i>Loading your recommendations; please wait...</div>
 
         <div v-if="!loading" class="storiesWrapper">
             <div v-for="c in categories">
@@ -27,6 +30,10 @@
                     </ul>
                 </div>
             </div>
+            <div v-if="storiesEmpty" class="roboto-condensed notificationScreen">
+                <p><i class="bi bi-rss"></i></p>
+                <p>No stories found. <Router-Link :to="{name: 'sourcelist'}">Add RSS feeds</Router-Link> or check that they are correct.</p>
+            </div>
         </div>
 
     </div>
@@ -40,6 +47,14 @@ export default {
         return {
             categories: [],
             loading: true
+        }
+    },
+    computed: {
+        storiesEmpty() {
+            if (this.categories && this.categories.length) {
+                return false;
+            }
+            return true;
         }
     },
     methods: {
@@ -105,7 +120,7 @@ export default {
     border-radius: 10px;
     border-color: rgba(0,0,0,0.3);
     margin-bottom: 10px;
-
+    box-shadow: 0px 3px 3px rgba(0,0,0,0.3);
 }
 .subTitle{
     color: rgba(0,0,0,0.5);
@@ -139,5 +154,19 @@ export default {
     font-family: Roboto, sans-serif;
     color: rgba(200, 100, 20, 1);
     font-weight: 700;
+}
+
+.notificationScreen {
+    text-align:center;
+    color: rgba(0,0,0,0.7);
+    margin-top: 100px;
+    font-size: 20px;
+}
+
+.topBar {
+    display: flex;
+    flex-direction: row;
+    align-items:center;
+    gap: 10px;
 }
 </style>

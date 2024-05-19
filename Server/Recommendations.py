@@ -61,12 +61,15 @@ def categorizeStories(feedStories: List[Story]):
     global last_update
     # shallow copy to preserve story instances while not changing story list
     stories = copy.copy(feedStories)
+    if not len(stories):
+        return []
     if (time.time() - last_update) < (15 * 60):
         return categories
     categories = []
     # build up dictionary
     allWords = []
     for s in stories:
+        s.ranking = rateStoryValue(s)
         cleaned = tokenizeAndClean(s.title)
         s.simplifiedTitle = cleaned
         allWords.extend(cleaned)
@@ -77,8 +80,6 @@ def categorizeStories(feedStories: List[Story]):
         keywd = k[0]
         cat = Category(keywd)
         for s in stories:
-            if len(cat.stories) >= MAX_STORIES_PER_CATEGORY:
-                break
             if keywd in s.simplifiedTitle:
                 # restore full word
                 if cat.expandedKeyword == "":
@@ -89,8 +90,12 @@ def categorizeStories(feedStories: List[Story]):
         #duplicate avoidance may cause empty categories
         if len(cat.stories) > 0:
             cat.stories.sort(key=lambda x: x.ranking, reverse=True)
+            for s in cat.stories[1:]:
+                if s.feedSource == cat.stories[0].feedSource:
+                    s.ranking -= 30 #penalize repeats
+            cat.stories.sort(key=lambda x: x.ranking, reverse=True)    
             # set rank of category to mean of story rank, plus consider number of occurrences and add some randomness
-            
+            cat.stories = cat.stories[:MAX_STORIES_PER_CATEGORY]
             cat.categoryRank = rateCategoryValue(cat, k[1])
             categories.append(cat)
     last_update = time.time()
@@ -115,6 +120,7 @@ def rateStoryValue(s: Story):
     for p in PENALIZED_WORDS:
         if p in s.title.lower() or p in s.summary.lower():
             rating -= 1
+    
     try:
         unixtime = time.mktime(s.time)
         age = time.time() - unixtime

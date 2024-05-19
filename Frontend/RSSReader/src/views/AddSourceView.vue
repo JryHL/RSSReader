@@ -1,10 +1,10 @@
 <template>
-    <h1>Add a source</h1>
+    <h1 class="roboto">Add a source</h1>
     <div class="sources-form">
         <form class="sources-form-contents">
-            <input type="text" placeholder="Name of RSS feed (e.g. AP News)" v-model="sourceName"/>
-            <input type="text" placeholder="RSS Feed URL" v-model="sourceURL"/>
-            <input type="button" id="addSrcButton" :onclick="submitForm" value="Submit"/>
+            <input type="text" class="text-input" placeholder="Name of RSS feed (e.g. AP News)" v-model="sourceName"/>
+            <input type="text" class="text-input" placeholder="RSS Feed URL" v-model="sourceURL"/>
+            <input type="button" class="text-button" id="addSrcButton" :onclick="submitForm" :value="buttonValue" :disabled="buttonDisabled"/>
         </form>
     </div>
 </template>
@@ -16,17 +16,22 @@
         data() {
             return {
                 sourceName: "",
-                sourceURL: ""
+                sourceURL: "",
+                buttonDisabled: false,
+                buttonValue: "SUBMIT"
             }
         },
 
         methods: {
             async submitForm() {
+                this.buttonDisabled = true;
+                this.buttonValue = "SUBMITTING..."
                 let res = await createSource(this.sourceName, this.sourceURL);
                 if (res?.status !== 200) {
-                    alert("Error occurred")
+                    alert("An error occurred")
+                    this.$router.push({name: "sourcelist"})
                 } else {
-                    this.$router.push('/')
+                    this.$router.push({name: "sourcelist"})
                 }
             }
         }
@@ -37,11 +42,11 @@
     .sources-form-contents {
         display: flex;
         flex-direction: column;
-        width: 40vw;
+        width: 50%;
+        gap: 10px;
     }
 
     #addSrcButton {
-        width: 10vw;
         align-self:flex-end;
     }
 </style>
