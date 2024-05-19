@@ -103,7 +103,7 @@ export default {
 }
 
 .storyTitle {
-    font-size:25px;
+    font-size:30px;
     display: block;
     overflow: hidden;
     text-wrap: nowrap;
@@ -118,6 +118,7 @@ export default {
     text-wrap: nowrap;
     text-overflow: ellipsis;
     font-family: 'Roboto Condensed', sans-serif;
+    font-size: 20px;
 }
 
 .storiesList {
@@ -132,7 +133,7 @@ export default {
 .subTitle{
     color: rgba(0,0,0,0.5);
     font-family: 'Noto Sans', sans-serif;
-    font-size: 12px;
+    font-size: 15px;
 }
 .clickableCard {
     text-decoration: none;
@@ -152,7 +153,7 @@ export default {
     font-family: 'Noto Serif', serif;
     color: rgba(0,0,0,0.9);
     margin-top: 7px;
-    font-size: 15px;
+    font-size: 20px;
     overflow: hidden;
     text-overflow: ellipsis;
     text-wrap: nowrap;
@@ -161,13 +162,14 @@ export default {
     font-family: Roboto, sans-serif;
     color: rgba(200, 100, 20, 1);
     font-weight: 700;
+    font-size:20px;
 }
 
 .notificationScreen {
     text-align:center;
     color: rgba(0,0,0,0.7);
     margin-top: 100px;
-    font-size: 20px;
+    font-size: 30px;
 }
 
 .topBar {

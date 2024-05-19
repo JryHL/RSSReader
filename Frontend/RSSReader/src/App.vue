@@ -26,7 +26,7 @@ import { RouterLink, RouterView } from 'vue-router'
   flex-direction: row;
   background-color: rgb(240, 240, 240);
   width: 100%;
-  font-size: 1.3em;
+  font-size: 1.7em;
   font-family: sans-serif;
   position:fixed;
   top: 0px;
