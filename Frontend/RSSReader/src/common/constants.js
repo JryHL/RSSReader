@@ -1,1 +1,1 @@
-export const LOADING_SCREEN_TIME = 250
+export const LOADING_SCREEN_TIME = 100

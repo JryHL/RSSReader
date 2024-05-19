@@ -5,14 +5,19 @@
 
         <div class="loadingScreen" v-if="loading"><i class="bi bi-hourglass-split"></i>Loading your recommendations; please wait...</div>
 
-        <div v-if="!loading">
+        <div v-if="!loading" class="storiesWrapper">
             <div v-for="c in categories">
-                <h3> {{ c.keyword.charAt(0).toUpperCase() + c.keyword.slice(1) }} </h3>
                 <div class="storiesList">
-                    <div v-for="s in c.stories" class="storyCard">
-                        <div> <a :href="s.url" target="_blank"> {{ s.title }} </a> </div>
-                        <div> {{ s.time }} </div>
-                        <div> {{ s.feed_source_name }} </div>
+                    <div v-for="s in c.stories.slice(0,1) " class="storyCard">
+                        <a :href="s.url" target="_blank" class="clickableCard">
+                            <span class="storyTitle"> {{ s.title }} </span>
+                            <span class="subTitle"> {{ s.feed_source_name }} | {{ s.time }} </span>
+                            <span class="summary"> {{ s.summary }} </span>
+                        </a>
+                    </div>
+                    <div v-for="s in c.stories.slice(1) " class="smallerStory">
+                        <div class="smallerStoryLink"> <a :href="s.url" target="_blank"> {{ s.title }} </a> </div>
+                        <div> {{ s.feed_source_name }} | {{ s.time }} </div>
                     </div>
                 </div>
             </div>
@@ -65,21 +70,33 @@ export default {
     font-size: 2em;
     color: rgba(0, 0, 0, 0.5);
 }
-.storiesList {
-    display: flex;
-    overflow:auto;
-    gap: 5px;
-
+.storiesWrapper {
+    margin-top: 10px;
 }
-.storyCard {
-    border-style: solid;
-    border-width: 1px;
-    border-color: rgba(0,0,0,0.5);
-    border-radius: 5px;
-    box-shadow: 0px 3px 3px rgba(0,0,0,0.5);
-    padding: 5px;
-    min-width: 300px;
-    width: 300px;
-    height: 200px;
+
+.storyTitle {
+    font-size:25px;
+    display: block;
+    overflow: hidden;
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: bold;
+    transition: 0.3s;
+}
+.subTitle{
+    display: block;
+    color: rgba(0,0,0,0.5);
+}
+.clickableCard {
+    text-decoration: none;
+    color: black;
+    transition: 0.3s;
+}
+.clickableCard:hover {
+    text-decoration: underline;
+    .storyTitle {
+        color: rgba(0,0,0,0.8);
+    }
 }
 </style>

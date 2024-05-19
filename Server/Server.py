@@ -1,11 +1,13 @@
 from flask import Flask
 from flask import request
 import FeedController
-
+import Helper
 from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
+
+STORIES_PER_CATEGORY = 3
 
 @app.route('/createSource', methods=['POST'])
 def createSource():
@@ -25,6 +27,24 @@ def createSource():
             "status": 405,
             "error": "Needs to be post request"
         }
+
+@app.route('/deleteSource', methods=['DELETE'])
+def deleteSource():
+    if request.method == 'DELETE':
+        if FeedController.deleteSource(request.args.get('id')):
+            return {
+                "status": 200,
+            }
+        else:
+            return {
+                "status": 500,
+            }
+    else:
+        return {
+            "status": 405,
+            "error": "Needs to be post request"
+        }
+
     
 @app.route('/getSources', methods=['GET'])
 def getSources():
@@ -83,12 +103,77 @@ def fetchStoriesFromSource():
                 "title": s.title,
                 "summary": s.summary,
                 "url": s.url,
-                "time": s.time,
+                "time": Helper.parsedTimeToDate(s.time),
                 "feed_source": s.feedSource.id
             })
         return {
             "status": 200,
             "stories": storyDTOs
+        }
+    else:
+        return {
+            "status": 405,
+            "error": "Needs to be get request"
+        }
+
+@app.route('/getStoryCategories', methods=['GET'])
+def getStoryCategories():
+    if request.method == 'GET':
+        categories = FeedController.returnCategories()
+        categoryDTOs = []
+        for c in categories:
+            categoryDTO = {
+                "keyword": c.keyword,
+                "stories": []
+            }
+            stories = Helper.getNRandom(STORIES_PER_CATEGORY, c.stories)
+            for s in stories:
+                categoryDTO["stories"].append({
+                    "id": s.id,
+                    "title": s.title,
+                    "summary": s.summary,
+                    "url": s.url,
+                    "time": Helper.parsedTimeToDate(s.time),
+                    "feed_source": s.feedSource.id,
+                    "feed_source_name": s.feedSource.name
+                })
+            categoryDTOs.append(categoryDTO)
+        return {
+            "status": 200,
+            "categories": categoryDTOs
+        }
+    else:
+        return {
+            "status": 405,
+            "error": "Needs to be get request"
+        }
+
+@app.route('/getRefreshedStoryCategories', methods=['GET'])
+def getRefreshedStoryCategories():
+    if request.method == 'GET':
+        FeedController.forceRecommendationReset()
+        categories = FeedController.returnCategories()
+        categoryDTOs = []
+        for c in categories:
+            categoryDTO = {
+                "keyword": c.keyword,
+                "stories": []
+            }
+            stories = Helper.getNRandom(STORIES_PER_CATEGORY, c.stories)
+            for s in stories:
+                categoryDTO["stories"].append({
+                    "id": s.id,
+                    "title": s.title,
+                    "summary": s.summary,
+                    "url": s.url,
+                    "time": Helper.parsedTimeToDate(s.time),
+                    "feed_source": s.feedSource.id,
+                    "feed_source_name": s.feedSource.name
+                })
+            categoryDTOs.append(categoryDTO)
+        return {
+            "status": 200,
+            "categories": categoryDTOs
         }
     else:
         return {

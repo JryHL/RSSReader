@@ -8,7 +8,7 @@ class Persistence:
         self.stories = []
         cur = self.con.cursor()
         cur.execute("CREATE TABLE IF NOT EXISTS feed_sources(feed_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, url TEXT);")
-        cur.execute("CREATE TABLE IF NOT EXISTS stories(story_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, summary TEXT, contents TEXT, url TEXT, time TEXT, feed_id INTEGER, FOREIGN KEY(feed_id) REFERENCES feed_sources(feed_id));")
+        cur.execute("CREATE TABLE IF NOT EXISTS stories(story_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, summary TEXT, url TEXT, time TEXT, feed_id INTEGER, FOREIGN KEY(feed_id) REFERENCES feed_sources(feed_id));")
         self.deserializeData()
 
     def deserializeData(self):
@@ -26,8 +26,8 @@ class Persistence:
             fetched = storiesResult.fetchone()
             if fetched is None:
                 break
-            assocSource = self.feedSources[int(fetched[6])]
-            story = Story(fetched[0], fetched[1], fetched[2], fetched[3], fetched[4], fetched[5], assocSource)
+            assocSource = self.feedSources[int(fetched[5])]
+            story = Story(fetched[0], fetched[1], fetched[2], fetched[3], fetched[4], assocSource)
             assocSource.stories.append(story)
             self.stories.append(story)
     
@@ -49,8 +49,8 @@ class Persistence:
 
     def addStory(self, story: Story):
         cur = self.con.cursor()
-        sql = f"INSERT INTO stories(title, summary, contents, url, time, feed_id) VALUES(?, ?, ?, ?, ?, ?);"
-        args = (str(story.title), str(story.summary), str(story.contents), str(story.url), str(story.time), int(story.feedSource.id))
+        sql = f"INSERT INTO stories(title, summary, url, time, feed_id) VALUES(?, ?, ?, ?, ?);"
+        args = (str(story.title), str(story.summary), str(story.url), str(story.time), int(story.feedSource.id))
         cur.execute(sql, args)
         self.con.commit()
         story.id = cur.lastrowid
@@ -65,6 +65,17 @@ class Persistence:
         for story in feed.stories:
             self.stories.remove(story)
         feed.stories = []
+    
+    def deleteSource(self, feed: FeedSource) -> bool:
+        cur = self.con.cursor()
+        self.deleteStoriesFromSource(feed)
+
+        sql = f"DELETE FROM feed_sources WHERE feed_id={int(feed.id)};"
+        cur.execute(sql) 
+        self.feedSources.pop(feed.id)
+        return True
+
+
 
     def close(self):
         self.con.close()

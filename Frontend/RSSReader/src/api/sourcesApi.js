@@ -14,6 +14,11 @@ export async function createSource(name, url) {
     return res;
 }
 
+export async function deleteSource(id) {
+    let res = await api.delete('/deleteSource', {params: {"id": id}})
+    return res;
+}
+
 export async function fetchStories(id) {
     let res = await api.get('/fetchStoriesFromSource', {params: {"id": id}});
     return res?.data?.stories || [];

@@ -10,14 +10,17 @@
                     {{ s.url }}
                 </div>
             </div>
+            <div>
+            <i class="bi bi-trash viewbutton" @click="onDeleteSource(s.id)"></i>
             <i class="bi bi-chevron-double-right viewbutton" @click="goToStories(s.id)"></i>
+            </div>
         </div>
     </div>
 </template>
 <script>
     import { mapState } from 'pinia'
     import { useSourcesStore } from '../stores/sources'
-    import { fetchSources } from '../api/sourcesApi.js'
+    import { fetchSources, deleteSource } from '../api/sourcesApi.js'
     export default {
         
         data() {
@@ -29,12 +32,19 @@
             ...mapState(useSourcesStore, ['sources'])
         },
         async created() {
-            const store = useSourcesStore();
-            store.$patch({sources: await fetchSources()})
+            this.updateSources()
         },
         methods: {
+            async updateSources(){
+                const store = useSourcesStore();
+                store.$patch({sources: await fetchSources()})
+            },
             goToStories(id) {
                 this.$router.push({name: 'stories', params: {id: id}})
+            },
+            async onDeleteSource(id) {
+                await deleteSource(id);
+                this.updateSources();
             }
         }
     }
