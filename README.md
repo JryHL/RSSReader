@@ -10,3 +10,8 @@ On the assumption that stories with negative sentiments are more likely to be im
 The frontend is made using **vue** and **node.js**. The backend is made using **python** with APIs handled using **flask**.
 
 **NTLK** is used to perform text parsing and analysis functionality. It is used to remove stopwords and find word stems in order to make it easier to identify common keywords for categorization purposes. It is also used for sentiment analysis using the VADER lexicon.
+
+## How to run it
+To run this web application, you must run launch the backend and frontend.
+Install the dependencies for the backend from `requirements.txt` using pip, and then run it using `flask --app Server.py run`.
+Run `npm install` and then `npm run dev` from the `Frontend/RSSReader` folder to launch the frontend.
