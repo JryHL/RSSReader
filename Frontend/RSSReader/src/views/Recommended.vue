@@ -1,7 +1,7 @@
 <template>
     <div class="topBar">
         <h1 class="roboto">Your Briefing</h1>
-        <button class="text-button" @click="forceResetCategories"><i class="bi bi-arrow-clockwise"></i> REFRESH</button>
+        <button class="text-button" @click="forceResetCategories" :disabled="loading"><i v-if="!loading" class="bi bi-arrow-clockwise"></i> {{ btnText }}</button>
     </div>
     <div>
         <div class="roboto-condensed notificationScreen" v-if="loading"><i class="bi bi-hourglass-split"></i>Loading your recommendations; please wait...</div>
@@ -52,6 +52,10 @@ export default {
                 return false;
             }
             return true;
+        },
+        btnText() {
+            if (this.loading) return "LOADING...";
+            return "REFRESH"
         }
     },
     methods: {

@@ -79,7 +79,8 @@ def getStoriesFromSource():
                 "summary": s.summary,
                 "url": s.url,
                 "time": s.time,
-                "feed_source": s.feedSource.id
+                "feed_source": s.feedSource.id,
+                "sentiment": s.sentiment
             })
         return {
             "status": 200,
@@ -104,7 +105,8 @@ def fetchStoriesFromSource():
                 "url": s.url,
                 "time": Helper.parsedTimeToDate(s.time),
                 "feed_source": s.feedSource.id,
-                "story_ranking": s.ranking
+                "story_ranking": s.ranking,
+                "sentiment": s.sentiment
             })
         return {
             "status": 200,
@@ -135,7 +137,8 @@ def getStoryCategories():
                     "time": Helper.parsedTimeToDate(s.time),
                     "feed_source": s.feedSource.id,
                     "feed_source_name": s.feedSource.name,
-                    "story_ranking": s.ranking
+                    "story_ranking": s.ranking,
+                    "sentiment": s.sentiment
                 })
             categoryDTOs.append(categoryDTO)
         return {
@@ -168,7 +171,8 @@ def getRefreshedStoryCategories():
                     "time": Helper.parsedTimeToDate(s.time),
                     "feed_source": s.feedSource.id,
                     "feed_source_name": s.feedSource.name,
-                    "story_ranking": s.ranking
+                    "story_ranking": s.ranking,
+                    "sentiment": s.sentiment
                 })
             categoryDTOs.append(categoryDTO)
         return {

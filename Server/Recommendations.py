@@ -6,6 +6,7 @@ from nltk.stem import PorterStemmer
 from FeedModel import Story
 from typing import List
 from collections import Counter
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import time
 import string 
 import random
@@ -19,11 +20,13 @@ MAX_STORIES_PER_CATEGORY = 5
 categories = []
 nltk.download('punkt')
 nltk.download('stopwords')
+nltk.download('vader_lexicon')
 stop_words = set(stopwords.words('english'))
 
 stop_words.update(ADDITIONAL_STOPWORDS)
 last_update = 0
 ps = PorterStemmer()
+vaderSentiment = SentimentIntensityAnalyzer()
 
 punctuation = set(string.punctuation)
 other_puncts = ['’', '–', '‘']
@@ -73,13 +76,17 @@ def categorizeStories(feedStories: List[Story]):
         cleaned = tokenizeAndClean(s.title)
         s.simplifiedTitle = cleaned
         allWords.extend(cleaned)
+    stories.sort(key=lambda x: x.ranking, reverse=True)
     count = Counter(allWords)
     most_occurrences = count.most_common(NUM_CATEGORIES)
     # build up categories
+    print(most_occurrences)
     for k in most_occurrences:
         keywd = k[0]
         cat = Category(keywd)
         for s in stories:
+            if len(cat.stories) >= MAX_STORIES_PER_CATEGORY:
+                break
             if keywd in s.simplifiedTitle:
                 # restore full word
                 if cat.expandedKeyword == "":
@@ -88,14 +95,8 @@ def categorizeStories(feedStories: List[Story]):
                 stories.remove(s) #remove duplicates
             
         #duplicate avoidance may cause empty categories
-        if len(cat.stories) > 0:
-            cat.stories.sort(key=lambda x: x.ranking, reverse=True)
-            for s in cat.stories[1:]:
-                if s.feedSource == cat.stories[0].feedSource:
-                    s.ranking -= 30 #penalize repeats
-            cat.stories.sort(key=lambda x: x.ranking, reverse=True)    
+        if len(cat.stories) > 0:  
             # set rank of category to mean of story rank, plus consider number of occurrences and add some randomness
-            cat.stories = cat.stories[:MAX_STORIES_PER_CATEGORY]
             cat.categoryRank = rateCategoryValue(cat, k[1])
             categories.append(cat)
     last_update = time.time()
@@ -114,21 +115,20 @@ def rateCategoryValue(cat, freq: int) -> int:
 # TODO: Make better story ranking method
 def rateStoryValue(s: Story):
     rating = 0
-    for w in CRITICAL_WORDS:
-        if w in s.title.lower() or w in s.summary.lower():
-            rating += 5
-    for p in PENALIZED_WORDS:
-        if p in s.title.lower() or p in s.summary.lower():
-            rating -= 1
-    
+    sentiment = get_neg_sentiment(f"{s.title} {s.summary}")
+    s.sentiment = sentiment
+    rating += sentiment * 20 #emphasize negative sentiments as they are likely to be urgent news stories
     try:
         unixtime = time.mktime(s.time)
         age = time.time() - unixtime
-        rating -= 0.001 * age
+        rating -= 0.0002 * age
     except:
         pass
     rating += random.randint(-7, 7)
     return rating
+
+def get_neg_sentiment(text: str) -> float:
+    return vaderSentiment.polarity_scores(text)['neg']
 
 class Category:
     def __init__(self, keyword):

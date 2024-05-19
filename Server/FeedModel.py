@@ -1,4 +1,4 @@
-
+import time
 class FeedSource:
     def __init__(self, id, name, url):
         self.id = id
@@ -17,3 +17,4 @@ class Story:
         self.feedSource = feedSource
         self.simplifiedTitle = "" #title after stemming, stopword removal
         self.ranking = 0
+        self.sentiment = 0
