@@ -9,15 +9,18 @@ import time
 import string 
 import random
 import copy
+from MyConstants import *
 
-NUM_CATEGORIES = 15
+NUM_CATEGORIES = 30
+MAX_STORIES_PER_CATEGORY = 3
+
 
 categories = []
 nltk.download('punkt')
 nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
-other_stopwords = ["say", "time", "could", "new"]
-stop_words.update(other_stopwords)
+
+stop_words.update(ADDITIONAL_STOPWORDS)
 last_update = 0
 ps = PorterStemmer()
 
@@ -39,6 +42,16 @@ def tokenizeAndClean(s: str) -> List[str]:
             resTokens.append(stem)
     return resTokens
     
+def expandStemToFullWord(keyword: str, s: Story) -> str:
+    titlecpy = s.title
+    for p in (punctuation):
+        titlecpy = titlecpy.replace(p, '')
+    titlecpy = titlecpy.lower()
+    tokens = word_tokenize(titlecpy)
+    for t in tokens:
+        if keyword in t:
+            return t
+    return ""
 
 def categorizeStories(feedStories: List[Story]):
 
@@ -58,24 +71,46 @@ def categorizeStories(feedStories: List[Story]):
         allWords.extend(cleaned)
     count = Counter(allWords)
     most_occurrences = count.most_common(NUM_CATEGORIES)
-    random.shuffle(most_occurrences)
     # build up categories
     for k in most_occurrences:
         keywd = k[0]
         cat = Category(keywd)
         for s in stories:
             if keywd in s.simplifiedTitle:
+                # restore full word
+                if cat.expandedKeyword == "":
+                    cat.expandedKeyword = expandStemToFullWord(keywd, s)
                 cat.stories.append(s)
                 stories.remove(s) #remove duplicates
         #duplicate avoidance may cause empty categories
         if len(cat.stories) > 0:
+            cat.stories.sort(key=lambda x: x.ranking, reverse=True)
+            cat.stories = cat.stories[:MAX_STORIES_PER_CATEGORY]
             categories.append(cat)
     last_update = time.time()
     return categories
 
+# TODO: Make better story ranking method
+def rateStoryValue(s: Story):
+    rating = 0
+    for w in CRITICAL_WORDS:
+        if w in s.title.lower() or w in s.summary.lower():
+            rating += 5
+    for p in PENALIZED_WORDS:
+        if p in s.title.lower() or p in s.summary.lower():
+            rating -= 1
+    try:
+        unixtime = time.mktime(s.time)
+        age = time.time() - unixtime
+        rating -= 0.01 * age
+    except:
+        pass
+    rating += random.randint(-7, 7)
+    return rating
 
 class Category:
     def __init__(self, keyword):
         self.keyword = keyword
+        self.expandedKeyword = "" #keyword as full word rather than stem
         self.stories = []
 

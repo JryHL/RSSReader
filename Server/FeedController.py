@@ -4,7 +4,10 @@ import feedparser
 import time
 import Recommendations
 from bs4 import BeautifulSoup
+import random
 db = Persistence()
+
+MAX_STORIES_PER_SOURCE = 15
 
 def createSource(name, url):
     feed = FeedSource(-1, name, url)
@@ -16,21 +19,26 @@ def deleteSource(id) -> bool:
     return db.deleteSource(db.feedSources[int(id)])
 
 def getSources():
-    return db.getSources()
+    randomFetch()
+    sourcesList = db.getSources()
+    return sourcesList
 
 # fetches stories from feed if more than 15 minutes since last fetch
 def fetchStoriesFromSource(source_id):
     source = db.feedSources[int(source_id)]
     if (time.time() - source.lastUpdate) > (15 * 60):
-        db.deleteStoriesFromSource(source)
+        
         rssResults = feedparser.parse(source.url)
-        for e in rssResults.entries:
-            soup = BeautifulSoup(str(getattr(getattr(e, "summary_detail", ""), "value", "")),features="html.parser")
-            summary = soup.get_text()
-            storyObj = Story(-1, getattr(e, "title", ""), summary, getattr(e, "link", ""), getattr(e, "published_parsed", ""), source)
-            db.addStory(storyObj)
-        source.lastUpdate = time.time()
-        Recommendations.last_update = 0 #force recommendations re-recommend
+        if len(rssResults.entries) > 0:
+            db.deleteStoriesFromSource(source)
+            for e in rssResults.entries[:MAX_STORIES_PER_SOURCE]:
+                soup = BeautifulSoup(str(getattr(getattr(e, "summary_detail", ""), "value", "")),features="html.parser")
+                summary = soup.get_text()
+                storyObj = Story(-1, getattr(e, "title", ""), summary, getattr(e, "link", ""), getattr(e, "published_parsed", ""), source)
+                storyObj.ranking = Recommendations.rateStoryValue(storyObj)
+                db.addStory(storyObj)
+            source.lastUpdate = time.time()
+            Recommendations.last_update = 0 #force recommendations re-recommend
     return getStoriesFromSource(source_id)
         
 
@@ -38,9 +46,20 @@ def getStoriesFromSource(source_id):
     return db.getStoriesFromSource(int(source_id))
 
 def returnCategories():
-    for id in db.feedSources.keys():
+    for index, id in enumerate(db.feedSources.keys()):
         fetchStoriesFromSource(id)
+       
     return Recommendations.categorizeStories(db.stories)
+
+# randomly fetches from sources for 0.5 seconds to reduce overhead of fetching all sources at once
+def randomFetch():
+    start = time.time()
+    counter = 0
+    while time.time() - start < 1 and counter < 3:
+        fetchStoriesFromSource(random.choice(list(db.feedSources.keys())))
+        counter += 1
+    print(f"Performed random fetch of {counter} sources")
+
 
 def forceRecommendationReset():
     Recommendations.last_update = 0

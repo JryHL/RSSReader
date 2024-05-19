@@ -6,6 +6,7 @@ class FeedSource:
         self.url = url
         self.stories = []
         self.lastUpdate = 0
+        
 class Story:
     def __init__(self, id, title, summary, url, time, feedSource: FeedSource):
         self.id = id
@@ -15,3 +16,4 @@ class Story:
         self.time = time
         self.feedSource = feedSource
         self.simplifiedTitle = "" #title after stemming, stopword removal
+        self.ranking = 0

@@ -7,7 +7,6 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-STORIES_PER_CATEGORY = 3
 
 @app.route('/createSource', methods=['POST'])
 def createSource():
@@ -104,7 +103,8 @@ def fetchStoriesFromSource():
                 "summary": s.summary,
                 "url": s.url,
                 "time": Helper.parsedTimeToDate(s.time),
-                "feed_source": s.feedSource.id
+                "feed_source": s.feedSource.id,
+                "story_ranking": s.ranking
             })
         return {
             "status": 200,
@@ -123,11 +123,10 @@ def getStoryCategories():
         categoryDTOs = []
         for c in categories:
             categoryDTO = {
-                "keyword": c.keyword,
+                "keyword": c.expandedKeyword,
                 "stories": []
             }
-            stories = Helper.getNRandom(STORIES_PER_CATEGORY, c.stories)
-            for s in stories:
+            for s in c.stories:
                 categoryDTO["stories"].append({
                     "id": s.id,
                     "title": s.title,
@@ -135,7 +134,8 @@ def getStoryCategories():
                     "url": s.url,
                     "time": Helper.parsedTimeToDate(s.time),
                     "feed_source": s.feedSource.id,
-                    "feed_source_name": s.feedSource.name
+                    "feed_source_name": s.feedSource.name,
+                    "story_ranking": s.ranking
                 })
             categoryDTOs.append(categoryDTO)
         return {
@@ -156,11 +156,10 @@ def getRefreshedStoryCategories():
         categoryDTOs = []
         for c in categories:
             categoryDTO = {
-                "keyword": c.keyword,
+                "keyword": c.expandedKeyword,
                 "stories": []
             }
-            stories = Helper.getNRandom(STORIES_PER_CATEGORY, c.stories)
-            for s in stories:
+            for s in c.stories:
                 categoryDTO["stories"].append({
                     "id": s.id,
                     "title": s.title,
@@ -168,7 +167,8 @@ def getRefreshedStoryCategories():
                     "url": s.url,
                     "time": Helper.parsedTimeToDate(s.time),
                     "feed_source": s.feedSource.id,
-                    "feed_source_name": s.feedSource.name
+                    "feed_source_name": s.feedSource.name,
+                    "story_ranking": s.ranking
                 })
             categoryDTOs.append(categoryDTO)
         return {
