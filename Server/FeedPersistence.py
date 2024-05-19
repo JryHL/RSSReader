@@ -72,6 +72,7 @@ class Persistence:
 
         sql = f"DELETE FROM feed_sources WHERE feed_id={int(feed.id)};"
         cur.execute(sql) 
+        self.con.commit()
         self.feedSources.pop(feed.id)
         return True
 

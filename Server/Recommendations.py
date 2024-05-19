@@ -15,7 +15,9 @@ from MyConstants import *
 
 NUM_CATEGORIES = 30
 MAX_STORIES_PER_CATEGORY = 5
-
+NEGATIVE_SENTIMENT_BOOST = 100
+POSITIVE_SENTIMENT_BOOST = 5
+PENALTY_PER_HOUR = 10
 
 categories = []
 nltk.download('punkt')
@@ -120,12 +122,12 @@ def rateStoryValue(s: Story):
     sentiment = get_sentiments(f"{s.title} {s.summary}")
     s.neg_sentiment = sentiment['neg']
     s.pos_sentiment = sentiment['pos']
-    rating += s.neg_sentiment * 20 #emphasize negative sentiments as they are likely to be urgent news stories
-    rating += s.pos_sentiment * 5
+    rating += s.neg_sentiment * NEGATIVE_SENTIMENT_BOOST #emphasize negative sentiments as they are likely to be urgent news stories
+    rating += s.pos_sentiment * POSITIVE_SENTIMENT_BOOST
     try:
         unixtime = time.mktime(s.time)
         age = time.time() - unixtime
-        rating -= 0.0002 * age
+        rating -= PENALTY_PER_HOUR * (age / (60 * 60))
     except:
         pass
     rating += random.randint(-7, 7)
