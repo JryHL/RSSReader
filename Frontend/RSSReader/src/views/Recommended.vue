@@ -12,7 +12,10 @@
                     <div v-for="s in c.stories.slice(0,1) " class="storyCard">
                         <a :href="s.url" target="_blank" class="clickableCard">
                             <span class="storyTitle"> {{ s.title }} </span>
-                            <span class="block subTitle"> {{ s.feed_source_name }} | {{ s.time }} </span>
+                            <span class="block subTitle"> {{ s.feed_source_name }} | {{ s.time }} 
+                                <span v-if="s.neg_sentiment > 0.2">🔥</span> 
+                                <span v-if="s.pos_sentiment > 0.2">📈</span>  
+                            </span>
                             <span class="block summary"> {{ s.summary }} </span>
                         </a>
                     </div>
@@ -20,7 +23,10 @@
                     <li v-for="s in c.stories.slice(1) " class="smallerStory">
                         <a class="clickableCard" :href="s.url" target="_blank"> 
                             <span class="block smallerTitle"> {{ s.title }}</span>
-                            <span class="block subTitle"> {{ s.feed_source_name }} | {{ s.time }} </span>
+                            <span class="block subTitle"> {{ s.feed_source_name }} | {{ s.time }} 
+                                <span v-if="s.neg_sentiment > 0.2">🔥</span>  
+                                <span v-if="s.pos_sentiment > 0.2">📈</span>  
+                            </span>
                         </a>
                         
                     </li>

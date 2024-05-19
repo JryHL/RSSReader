@@ -14,7 +14,7 @@ const router = createRouter({
       component: () => import('../views/AddSourceView.vue')
     },
     {
-      path: '/viewstories/:id',
+      path: '/viewstories/:id&name=:source_name',
       name: 'stories',
       component: () => import('../views/Stories.vue')
     }

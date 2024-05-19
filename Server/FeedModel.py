@@ -17,4 +17,5 @@ class Story:
         self.feedSource = feedSource
         self.simplifiedTitle = "" #title after stemming, stopword removal
         self.ranking = 0
-        self.sentiment = 0
+        self.neg_sentiment = 0
+        self.pos_sentiment = 0

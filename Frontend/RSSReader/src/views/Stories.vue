@@ -1,5 +1,6 @@
 <template>
     <div class="storiesList">
+        <h1 class="roboto"> {{ sourceName }} </h1>
         <div v-for="s in stories" class="storyCard">
             <a :href="s.url" target="_blank" class="clickableCard">
                 <span class="storyTitle"> {{ s.title }} </span>
@@ -16,6 +17,11 @@
         data() {
             return {
                 stories: []
+            }
+        },
+        computed: {
+            sourceName() {
+                return this.$route.params.source_name;
             }
         },
         methods: {

@@ -15,7 +15,7 @@
             </div>
             <div>
             <i class="bi bi-trash viewbutton" @click="onDeleteSource(s.id)"></i>
-            <i class="bi bi-chevron-double-right viewbutton" @click="goToStories(s.id)"></i>
+            <i class="bi bi-chevron-double-right viewbutton" @click="goToStories(s.id, s.name)"></i>
             </div>
         </div>
     </div>
@@ -42,8 +42,8 @@
                 const store = useSourcesStore();
                 store.$patch({sources: await fetchSources()})
             },
-            goToStories(id) {
-                this.$router.push({name: 'stories', params: {id: id}})
+            goToStories(id, name) {
+                this.$router.push({name: 'stories', params: {id: id, source_name: name}})
             },
             async onDeleteSource(id) {
                 await deleteSource(id);

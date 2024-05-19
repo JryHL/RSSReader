@@ -93,7 +93,9 @@ def categorizeStories(feedStories: List[Story]):
                     cat.expandedKeyword = expandStemToFullWord(keywd, s)
                 cat.stories.append(s)
                 stories.remove(s) #remove duplicates
-            
+        # if still failed to find full keyword in story, use stem as graceful fallback
+        if cat.expandedKeyword == "":
+            cat.expandedKeyword = cat.keyword
         #duplicate avoidance may cause empty categories
         if len(cat.stories) > 0:  
             # set rank of category to mean of story rank, plus consider number of occurrences and add some randomness
@@ -115,9 +117,11 @@ def rateCategoryValue(cat, freq: int) -> int:
 # TODO: Make better story ranking method
 def rateStoryValue(s: Story):
     rating = 0
-    sentiment = get_neg_sentiment(f"{s.title} {s.summary}")
-    s.sentiment = sentiment
-    rating += sentiment * 20 #emphasize negative sentiments as they are likely to be urgent news stories
+    sentiment = get_sentiments(f"{s.title} {s.summary}")
+    s.neg_sentiment = sentiment['neg']
+    s.pos_sentiment = sentiment['pos']
+    rating += s.neg_sentiment * 20 #emphasize negative sentiments as they are likely to be urgent news stories
+    rating += s.pos_sentiment * 5
     try:
         unixtime = time.mktime(s.time)
         age = time.time() - unixtime
@@ -127,8 +131,8 @@ def rateStoryValue(s: Story):
     rating += random.randint(-7, 7)
     return rating
 
-def get_neg_sentiment(text: str) -> float:
-    return vaderSentiment.polarity_scores(text)['neg']
+def get_sentiments(text: str) -> float:
+    return vaderSentiment.polarity_scores(text)
 
 class Category:
     def __init__(self, keyword):
