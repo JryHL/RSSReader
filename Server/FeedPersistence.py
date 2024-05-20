@@ -1,5 +1,6 @@
 import sqlite3
 from FeedModel import *
+import Helper
 class Persistence:
     def __init__(self):
         self.con = sqlite3.connect("feedData.db", check_same_thread=False)
@@ -27,7 +28,7 @@ class Persistence:
             if fetched is None:
                 break
             assocSource = self.feedSources[int(fetched[5])]
-            story = Story(fetched[0], fetched[1], fetched[2], fetched[3], fetched[4], assocSource)
+            story = Story(fetched[0], fetched[1], fetched[2], fetched[3], Helper.textDateToTimeTup(fetched[4]), assocSource)
             assocSource.stories.append(story)
             self.stories.append(story)
     
@@ -50,7 +51,7 @@ class Persistence:
     def addStory(self, story: Story):
         cur = self.con.cursor()
         sql = f"INSERT INTO stories(title, summary, url, time, feed_id) VALUES(?, ?, ?, ?, ?);"
-        args = (str(story.title), str(story.summary), str(story.url), str(story.time), int(story.feedSource.id))
+        args = (str(story.title), str(story.summary), str(story.url), Helper.parsedTimeToDate(story.time), int(story.feedSource.id))
         cur.execute(sql, args)
         self.con.commit()
         story.id = cur.lastrowid

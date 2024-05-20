@@ -5,26 +5,33 @@ import time
 import Recommendations
 from bs4 import BeautifulSoup
 import random
+from threading import Thread
+
+
+
 db = Persistence()
 
 MAX_STORIES_PER_SOURCE = 15
 
 def createSource(name, url):
+    waitForFeedUpdate()
     feed = FeedSource(-1, name, url)
     db.addSource(feed)
     fetchStoriesFromSource(feed.id)
     return feed
 
 def deleteSource(id) -> bool:
+    waitForFeedUpdate()
     forceRecommendationReset()
     return db.deleteSource(db.feedSources[int(id)])
 
 def getSources():
+    waitForFeedUpdate()
     sourcesList = db.getSources()
     return sourcesList
 
 # fetches stories from feed if more than 15 minutes since last fetch
-def fetchStoriesFromSource(source_id):
+def fetchStoriesFromSourceReal(source_id):
     source = db.feedSources[int(source_id)]
     if (time.time() - source.lastUpdate) > (15 * 60):
         
@@ -38,18 +45,46 @@ def fetchStoriesFromSource(source_id):
                 db.addStory(storyObj)
             source.lastUpdate = time.time()
             Recommendations.last_update = 0 #force recommendations re-recommend
-    return getStoriesFromSource(source_id)
+    return getStoriesFromSourceReal(source_id)
         
+def fetchStoriesFromSource(source_id):
+    # when called externally, wait until background update thread has finished
+    waitForFeedUpdate()
+    return fetchStoriesFromSourceReal(source_id)
 
 def getStoriesFromSource(source_id):
+    waitForFeedUpdate()
+    return getStoriesFromSourceReal(source_id)
+
+def getStoriesFromSourceReal(source_id):
     return db.getStoriesFromSource(int(source_id))
 
-def returnCategories():
-    for index, id in enumerate(db.feedSources.keys()):
-        fetchStoriesFromSource(id)
-       
-    return Recommendations.categorizeStories(db.stories)
+def updateAllFeeds():
+    print("Background feed update started")
+    for id in db.feedSources.keys():
+        fetchStoriesFromSourceReal(id)
+    print("Background feed update finished")
 
+def returnCategories():
+    waitForFeedUpdate()
+    start_time = time.time()
+    fullyUpdated = True
+    for id in db.feedSources.keys():
+        fetchStoriesFromSource(id)
+        if time.time() - start_time > 2:
+            # leave remaining update for next run
+            feedUpdateThread.start()
+            fullyUpdated = False
+            break
+       
+    categoryList = Recommendations.categorizeStories(db.stories)
+    return (categoryList, fullyUpdated)
 
 def forceRecommendationReset():
     Recommendations.last_update = 0
+
+def waitForFeedUpdate():
+    if feedUpdateThread.is_alive():
+        feedUpdateThread.join()
+
+feedUpdateThread = Thread(target = updateAllFeeds)

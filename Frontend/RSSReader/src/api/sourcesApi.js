@@ -26,11 +26,17 @@ export async function fetchStories(id) {
 
 export async function getRecommendedStories() {
     let res = await api.get('/getStoryCategories');
-    return res?.data?.categories || [];
+    return {
+        categories: res?.data?.categories || [],
+        fullyUpdated: res?.data?.fullyUpdated || false
+    }
 }
 
 export async function getRefreshedStoryCategories() {
     let res = await api.get('/getRefreshedStoryCategories');
-    return res?.data?.categories || [];
+    return {
+        categories: res?.data?.categories || [],
+        fullyUpdated: res?.data?.fullyUpdated || false
+    }
 }
 

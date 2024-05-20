@@ -12,9 +12,10 @@ import string
 import random
 import copy
 from MyConstants import *
+import math
 
-NUM_CATEGORIES = 30
-MAX_STORIES_PER_CATEGORY = 5
+CATEGORY_STORIES_RATIO = 10 # divide number of stories by this to determine how many categories to generate
+MAX_STORIES_PER_CATEGORY = 5 # max number of stories displayed per category
 NEGATIVE_SENTIMENT_BOOST = 100
 POSITIVE_SENTIMENT_BOOST = 5
 PENALTY_PER_HOUR = 10
@@ -80,7 +81,7 @@ def categorizeStories(feedStories: List[Story]):
         allWords.extend(cleaned)
     stories.sort(key=lambda x: x.ranking, reverse=True)
     count = Counter(allWords)
-    most_occurrences = count.most_common(NUM_CATEGORIES)
+    most_occurrences = count.most_common(math.ceil(len(stories) / CATEGORY_STORIES_RATIO))
     # build up categories
     print(most_occurrences)
     for k in most_occurrences:

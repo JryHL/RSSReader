@@ -123,7 +123,9 @@ def fetchStoriesFromSource():
 @app.route('/getStoryCategories', methods=['GET'])
 def getStoryCategories():
     if request.method == 'GET':
-        categories = FeedController.returnCategories()
+        catResults = FeedController.returnCategories()
+        categories = catResults[0]
+        fullyUpdated = catResults[1]
         categoryDTOs = []
         for c in categories:
             categoryDTO = {
@@ -146,7 +148,8 @@ def getStoryCategories():
             categoryDTOs.append(categoryDTO)
         return {
             "status": 200,
-            "categories": categoryDTOs
+            "categories": categoryDTOs,
+            "fullyUpdated": fullyUpdated
         }
     else:
         return {
@@ -158,7 +161,9 @@ def getStoryCategories():
 def getRefreshedStoryCategories():
     if request.method == 'GET':
         FeedController.forceRecommendationReset()
-        categories = FeedController.returnCategories()
+        catResults = FeedController.returnCategories()
+        categories = catResults[0]
+        fullyUpdated = catResults[1]
         categoryDTOs = []
         for c in categories:
             categoryDTO = {
@@ -181,7 +186,8 @@ def getRefreshedStoryCategories():
             categoryDTOs.append(categoryDTO)
         return {
             "status": 200,
-            "categories": categoryDTOs
+            "categories": categoryDTOs,
+            "fullyUpdated": fullyUpdated
         }
     else:
         return {

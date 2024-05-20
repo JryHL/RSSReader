@@ -6,6 +6,10 @@
     <div>
         <div class="roboto-condensed notificationScreen" v-if="loading"><i class="bi bi-hourglass-split"></i>Loading your recommendations; please wait...</div>
         <div v-if="!loading" class="storiesWrapper">
+            <div v-if="!fullyUpdated" class="roboto-condensed notFullyUpdatedNotification">
+                <i class="bi bi-info-square"></i>&nbsp;
+                Some feeds are taking a bit long to respond, so some stories may be older. Try refreshing in a few minutes. We are fetching them in the background.
+            </div>
             <div v-for="c in categories">
                 <div class="storiesList">
                     <div class="keyword"> {{ c.keyword.toUpperCase() }} </div>
@@ -49,7 +53,8 @@ export default {
     data() {
         return {
             categories: [],
-            loading: true
+            loading: true,
+            fullyUpdated: true
         }
     },
     computed: {
@@ -68,7 +73,8 @@ export default {
         async getStories() {
             this.loading = true;
             const fetched = await getRecommendedStories();
-            this.categories = fetched;
+            this.categories = fetched.categories;
+            this.fullyUpdated = fetched.fullyUpdated;
             setTimeout(() => {
                 this.loading = false;
             }, LOADING_SCREEN_TIME);
@@ -78,7 +84,8 @@ export default {
             this.loading = true;
             const fetched = await getRefreshedStoryCategories();
             console.log(fetched);
-            this.categories = fetched;
+            this.categories = fetched.categories;
+            this.fullyUpdated = fetched.fullyUpdated;
             setTimeout(() => {
                 this.loading = false;
             }, LOADING_SCREEN_TIME);
@@ -177,5 +184,14 @@ export default {
     flex-direction: row;
     align-items:center;
     gap: 10px;
+}
+
+.notFullyUpdatedNotification {
+    background-color: rgba(20, 120, 200, 1);
+    color: white;
+    padding: 10px;
+    font-size: 20px;
+    margin-bottom: 7px;
+    box-shadow: 0px 3px 3px rgba(0,0,0,0.3);
 }
 </style>

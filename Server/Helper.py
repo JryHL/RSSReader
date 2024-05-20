@@ -17,5 +17,12 @@ def parsedTimeToDate(tup):
     except:
         return "Invalid time"
     
+def textDateToTimeTup(txt):
+    try:
+        timetup = time.strptime(txt, "%b %d %Y %H:%M:%S")
+        return timetup
+    except:
+        return None
+    
 
 
