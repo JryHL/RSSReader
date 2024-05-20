@@ -17,12 +17,11 @@ const router = createRouter({
       path: '/viewstories/:id&name=:source_name',
       name: 'stories',
       component: () => import('../views/Stories.vue')
-    }
-    ,
+    },
     {
       path: '/',
       name: 'recommended',
-      component: () => import('../views/Recommended.vue')
+      component: () => import('../views/RecommendedStories.vue')
     }
   ]
 })

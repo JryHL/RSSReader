@@ -13,10 +13,10 @@
                 Some feeds are taking a bit long to respond, so some stories may be older. Try refreshing in a few
                 minutes. We are fetching them in the background.
             </div>
-            <div v-for="c in categories">
+            <div v-for="c in categories" :key="c.id">
                 <div class="storiesList">
                     <div class="keyword"> {{ c.keyword.toUpperCase() }} </div>
-                    <div v-for="s in c.stories.slice(0, 1) " class="mainStory">
+                    <div v-for="s in c.stories.slice(0, 1) " class="mainStory" :key="s.id">
 
                         <div>
                             <a :href="s.url" target="_blank" class="clickableCard">
@@ -28,16 +28,12 @@
                                 <span class="block summary"> {{ s.summary }} </span>
                             </a>
                         </div>
-                        <a :href="`https://archive.is/newest/${s.url}`" target="_blank" class="roboto archiveLink">
-                            <i class="bi bi-archive"></i> Archive.is
-                        </a>
-                        &nbsp;
-                        <a :href="`https://12ft.io/${s.url}`" target="_blank" class="roboto archiveLink">
-                            <i class="bi bi-archive"></i> 12ft.io
+                        <a :href="`https://archive.today/newest/${s.url}`" target="_blank" class="roboto archiveLink">
+                            <i class="bi bi-archive"></i> Archive
                         </a>
                     </div>
                     <ul>
-                        <li v-for="s in c.stories.slice(1) " class="smallerStory">
+                        <li v-for="s in c.stories.slice(1) " class="smallerStory" :key="s.id">
 
                             <div>
                                 <a class="clickableCard" :href="s.url" target="_blank">
@@ -49,12 +45,9 @@
                                     </span>
                                 </a>
                             </div>
-                            <a :href="`https://archive.is/newest/${s.url}`" target="_blank" class="roboto archiveLink">
-                                <i class="bi bi-archive"></i> Archive.is
-                            </a>
-                            &nbsp;
-                            <a :href="`https://12ft.io/${s.url}`" target="_blank" class="roboto archiveLink">
-                                <i class="bi bi-archive"></i> 12ft.io
+                            <a :href="`https://archive.today/newest/${s.url}`" target="_blank"
+                                class="roboto archiveLink">
+                                <i class="bi bi-archive"></i> Archive
                             </a>
                         </li>
                     </ul>
