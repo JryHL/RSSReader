@@ -17,8 +17,9 @@ import math
 CATEGORY_STORIES_RATIO = 10 # divide number of stories by this to determine how many categories to generate
 MAX_STORIES_PER_CATEGORY = 5 # max number of stories displayed per category
 NEGATIVE_SENTIMENT_BOOST = 100
-POSITIVE_SENTIMENT_BOOST = 5
-PENALTY_PER_HOUR = 10
+POSITIVE_SENTIMENT_BOOST = 20
+POSITIVE_STORY_CAT_BOOST = 100
+PENALTY_PER_HOUR = 5
 
 categories = []
 nltk.download('punkt')
@@ -79,9 +80,31 @@ def categorizeStories(feedStories: List[Story]):
         cleaned = tokenizeAndClean(s.title)
         s.simplifiedTitle = cleaned
         allWords.extend(cleaned)
-    stories.sort(key=lambda x: x.ranking, reverse=True)
+
+    
+    
     count = Counter(allWords)
     most_occurrences = count.most_common(math.ceil(len(stories) / CATEGORY_STORIES_RATIO))
+
+    # Generate positive sentiments category
+
+    pos_sent_cat = Category("pos_sent")
+    # using neutral terminology: positive sentiment detection is not perfect and may surface negative stories
+    # using overly positive terminology could cause offense if it doesn't match the stories
+    pos_sent_cat.expandedKeyword = "Stories that stand out 🧐" 
+    stories.sort(key=lambda x:x.pos_sentiment, reverse=True)
+    for s in stories:
+        if len(pos_sent_cat.stories) >= MAX_STORIES_PER_CATEGORY:
+            break
+        pos_sent_cat.stories.append(s)
+        stories.remove(s)
+
+
+    # Generate semantic categories
+
+    # Ensures biggest categories get to best stories first
+    stories.sort(key=lambda x: x.ranking, reverse=True)
+
     # build up categories
     print(most_occurrences)
     for k in most_occurrences:
@@ -105,7 +128,12 @@ def categorizeStories(feedStories: List[Story]):
             cat.categoryRank = rateCategoryValue(cat, k[1])
             categories.append(cat)
     last_update = time.time()
+
+    
     categories.sort(key=lambda x: x.categoryRank, reverse=True)
+
+    if len(pos_sent_cat.stories) > 0:
+        categories.insert(1, pos_sent_cat)
     return categories
 
 def rateCategoryValue(cat, freq: int) -> int:
@@ -113,8 +141,7 @@ def rateCategoryValue(cat, freq: int) -> int:
     for s in cat.stories:
         ranksum += s.ranking
     ranksum = ranksum / len(cat.stories)
-    ranksum += freq * 10
-    ranksum *= (random.randrange(75, 125) * 0.01)
+    ranksum += freq * 5
     return ranksum
 
 # TODO: Make better story ranking method
@@ -123,15 +150,16 @@ def rateStoryValue(s: Story):
     sentiment = get_sentiments(f"{s.title} {s.summary}")
     s.neg_sentiment = sentiment['neg']
     s.pos_sentiment = sentiment['pos']
-    rating += s.neg_sentiment * NEGATIVE_SENTIMENT_BOOST #emphasize negative sentiments as they are likely to be urgent news stories
-    rating += s.pos_sentiment * POSITIVE_SENTIMENT_BOOST
+    # emphasize negative sentiments as they are likely to be urgent news stories
+    # ensure that stories are not penalized for being not negative using max
+    rating += max(s.neg_sentiment * NEGATIVE_SENTIMENT_BOOST, 0)
+    rating += max(s.pos_sentiment * POSITIVE_SENTIMENT_BOOST, 0)
     try:
         unixtime = time.mktime(s.time)
         age = time.time() - unixtime
         rating -= PENALTY_PER_HOUR * (age / (60 * 60))
     except:
         pass
-    rating += random.randint(-7, 7)
     return rating
 
 def get_sentiments(text: str) -> float:
