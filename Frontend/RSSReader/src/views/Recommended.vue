@@ -1,45 +1,69 @@
 <template>
     <div class="topBar">
         <h1 class="roboto">Your Briefing</h1>
-        <button class="text-button" @click="forceResetCategories" :disabled="loading"><i v-if="!loading" class="bi bi-arrow-clockwise"></i> {{ btnText }}</button>
+        <button class="text-button" @click="forceResetCategories" :disabled="loading"><i v-if="!loading"
+                class="bi bi-arrow-clockwise"></i> {{ btnText }}</button>
     </div>
     <div>
-        <div class="roboto-condensed notificationScreen" v-if="loading"><i class="bi bi-hourglass-split"></i>Loading your recommendations; please wait...</div>
+        <div class="roboto-condensed notificationScreen" v-if="loading"><i class="bi bi-hourglass-split"></i>Loading
+            your recommendations; please wait...</div>
         <div v-if="!loading" class="storiesWrapper">
             <div v-if="!fullyUpdated" class="roboto-condensed notFullyUpdatedNotification">
                 <i class="bi bi-info-square"></i>&nbsp;
-                Some feeds are taking a bit long to respond, so some stories may be older. Try refreshing in a few minutes. We are fetching them in the background.
+                Some feeds are taking a bit long to respond, so some stories may be older. Try refreshing in a few
+                minutes. We are fetching them in the background.
             </div>
             <div v-for="c in categories">
                 <div class="storiesList">
                     <div class="keyword"> {{ c.keyword.toUpperCase() }} </div>
-                    <div v-for="s in c.stories.slice(0,1) " class="storyCard">
-                        <a :href="s.url" target="_blank" class="clickableCard">
-                            <span class="storyTitle"> {{ s.title }} </span>
-                            <span class="block subTitle"> {{ s.feed_source_name }} | {{ s.time }} 
-                                <span v-if="s.neg_sentiment > 0.2">🔥</span> 
-                                <span v-if="s.pos_sentiment > 0.2">📈</span>  
-                            </span>
-                            <span class="block summary"> {{ s.summary }} </span>
+                    <div v-for="s in c.stories.slice(0, 1) " class="mainStory">
+
+                        <div>
+                            <a :href="s.url" target="_blank" class="clickableCard">
+                                <span class="storyTitle"> {{ s.title }} </span>
+                                <span class="block subTitle"> {{ s.feed_source_name }} | {{ s.time }}
+                                    <span v-if="s.neg_sentiment > 0.2">🔥</span>
+                                    <span v-if="s.pos_sentiment > 0.2">📈</span>
+                                </span>
+                                <span class="block summary"> {{ s.summary }} </span>
+                            </a>
+                        </div>
+                        <a :href="`https://archive.is/newest/${s.url}`" target="_blank" class="roboto archiveLink">
+                            <i class="bi bi-archive"></i> Archive.is
+                        </a>
+                        &nbsp;
+                        <a :href="`https://12ft.io/${s.url}`" target="_blank" class="roboto archiveLink">
+                            <i class="bi bi-archive"></i> 12ft.io
                         </a>
                     </div>
                     <ul>
-                    <li v-for="s in c.stories.slice(1) " class="smallerStory">
-                        <a class="clickableCard" :href="s.url" target="_blank"> 
-                            <span class="block smallerTitle"> {{ s.title }}</span>
-                            <span class="block subTitle"> {{ s.feed_source_name }} | {{ s.time }} 
-                                <span v-if="s.neg_sentiment > 0.2">🔥</span>  
-                                <span v-if="s.pos_sentiment > 0.2">📈</span>  
-                            </span>
-                        </a>
-                        
-                    </li>
+                        <li v-for="s in c.stories.slice(1) " class="smallerStory">
+
+                            <div>
+                                <a class="clickableCard" :href="s.url" target="_blank">
+                                    <span class="block smallerTitle"> {{ s.title }}</span>
+                                    <span class="block subTitle"> {{ s.feed_source_name }} | {{ s.time }}
+
+                                        <span v-if="s.neg_sentiment > 0.2">🔥</span>
+                                        <span v-if="s.pos_sentiment > 0.2">📈</span>
+                                    </span>
+                                </a>
+                            </div>
+                            <a :href="`https://archive.is/newest/${s.url}`" target="_blank" class="roboto archiveLink">
+                                <i class="bi bi-archive"></i> Archive.is
+                            </a>
+                            &nbsp;
+                            <a :href="`https://12ft.io/${s.url}`" target="_blank" class="roboto archiveLink">
+                                <i class="bi bi-archive"></i> 12ft.io
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
             <div v-if="storiesEmpty" class="roboto-condensed notificationScreen">
                 <p><i class="bi bi-rss"></i></p>
-                <p>No stories found. <Router-Link :to="{name: 'sourcelist'}">Add RSS feeds</Router-Link> or check that they are correct.</p>
+                <p>No stories found. <Router-Link :to="{ name: 'sourcelist' }">Add RSS feeds</Router-Link> or check that
+                    they are correct.</p>
             </div>
         </div>
 
@@ -105,12 +129,13 @@ export default {
     font-size: 2em;
     color: rgba(0, 0, 0, 0.5);
 }
+
 .storiesWrapper {
     margin-top: -5px;
 }
 
 .storyTitle {
-    font-size:30px;
+    font-size: 30px;
     display: block;
     overflow: hidden;
     text-wrap: nowrap;
@@ -133,48 +158,55 @@ export default {
     border-style: solid;
     border-width: 1px;
     border-radius: 10px;
-    border-color: rgba(0,0,0,0.3);
+    border-color: rgba(0, 0, 0, 0.3);
     margin-bottom: 10px;
-    box-shadow: 0px 3px 3px rgba(0,0,0,0.3);
+    box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.3);
 }
-.subTitle{
-    color: rgba(0,0,0,0.5);
+
+.subTitle {
+    color: rgba(0, 0, 0, 0.5);
     font-family: 'Noto Sans', sans-serif;
     font-size: 15px;
 }
+
 .clickableCard {
     text-decoration: none;
     color: black;
     transition: 0.3s;
 }
+
 .clickableCard:hover {
     text-decoration: underline;
+
     .storyTitle {
-        color: rgba(0,0,0,0.8);
+        color: rgba(0, 0, 0, 0.8);
     }
 }
+
 .block {
-    display:block;
+    display: block;
 }
+
 .summary {
     font-family: 'Noto Serif', serif;
-    color: rgba(0,0,0,0.9);
+    color: rgba(0, 0, 0, 0.9);
     margin-top: 7px;
     font-size: 20px;
     overflow: hidden;
     text-overflow: ellipsis;
     text-wrap: nowrap;
 }
+
 .keyword {
     font-family: Roboto, sans-serif;
     color: rgba(200, 100, 20, 1);
     font-weight: 700;
-    font-size:20px;
+    font-size: 20px;
 }
 
 .notificationScreen {
-    text-align:center;
-    color: rgba(0,0,0,0.7);
+    text-align: center;
+    color: rgba(0, 0, 0, 0.7);
     margin-top: 100px;
     font-size: 30px;
 }
@@ -182,7 +214,7 @@ export default {
 .topBar {
     display: flex;
     flex-direction: row;
-    align-items:center;
+    align-items: center;
     gap: 10px;
 }
 
@@ -192,6 +224,16 @@ export default {
     padding: 10px;
     font-size: 20px;
     margin-bottom: 7px;
-    box-shadow: 0px 3px 3px rgba(0,0,0,0.3);
+    box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.3);
+}
+
+.archiveLink {
+    text-decoration: none;
+    color: rgba(0, 0, 0, 0.5);
+    transition: 0.2s;
+}
+
+.archiveLink:hover {
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
 }
 </style>
