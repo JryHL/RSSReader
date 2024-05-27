@@ -134,6 +134,13 @@ def categorizeStories(feedStories: List[Story]):
 
     if len(pos_sent_cat.stories) > 0:
         categories.insert(1, pos_sent_cat)
+
+    if len(stories) > 0:
+        remaining_stories_cat = Category("remaining")
+        remaining_stories_cat.expandedKeyword = "Other stories"
+        remaining_stories_cat.stories = stories
+        categories.append(remaining_stories_cat)
+
     return categories
 
 def rateCategoryValue(cat, freq: int) -> int:

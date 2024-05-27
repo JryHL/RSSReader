@@ -32,25 +32,27 @@
                             <i class="bi bi-archive"></i> Archive
                         </a>
                     </div>
-                    <ul>
-                        <li v-for="s in c.stories.slice(1) " class="smallerStory" :key="s.id">
 
-                            <div>
-                                <a class="clickableCard" :href="s.url" target="_blank">
-                                    <span class="block smallerTitle"> {{ s.title }}</span>
-                                    <span class="block subTitle"> {{ s.feed_source_name }} | {{ s.time }}
+                    <hr>
 
-                                        <span v-if="s.neg_sentiment > 0.2">🔥</span>
-                                        <span v-if="s.pos_sentiment > 0.2">📈</span>
-                                    </span>
-                                </a>
-                            </div>
-                            <a :href="`https://archive.today/newest/${s.url}`" target="_blank"
-                                class="roboto archiveLink">
-                                <i class="bi bi-archive"></i> Archive
+                    <div v-for="s in c.stories.slice(1) " class="smallerStory" :key="s.id">
+
+                        <div>
+                            <a class="clickableCard" :href="s.url" target="_blank">
+                                <span class="block smallerTitle"> {{ s.title }}</span>
+                                <span class="block subTitle"> {{ s.feed_source_name }} | {{ s.time }}
+
+                                    <span v-if="s.neg_sentiment > 0.2">🔥</span>
+                                    <span v-if="s.pos_sentiment > 0.2">📈</span>
+                                </span>
                             </a>
-                        </li>
-                    </ul>
+                        </div>
+                        <a :href="`https://archive.today/newest/${s.url}`" target="_blank"
+                            class="roboto archiveLink">
+                            <i class="bi bi-archive"></i> Archive
+                        </a>
+                    </div>
+
                 </div>
             </div>
             <div v-if="storiesEmpty" class="roboto-condensed notificationScreen">
@@ -144,6 +146,10 @@ export default {
     text-overflow: ellipsis;
     font-family: 'Roboto Condensed', sans-serif;
     font-size: 20px;
+}
+
+.smallerStory {
+    margin-top: 10px;
 }
 
 .storiesList {

@@ -72,8 +72,13 @@ def returnCategories():
     for id in db.feedSources.keys():
         fetchStoriesFromSource(id)
         if time.time() - start_time > 2:
-            # leave remaining update for next run
-            feedUpdateThread.start()
+            # update in background for next run
+            if not feedUpdateThread.is_alive():
+                try:
+                    feedUpdateThread.start()
+                except:
+                    print("thread not started")
+                    pass
             fullyUpdated = False
             break
        
